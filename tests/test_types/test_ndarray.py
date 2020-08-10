@@ -5,6 +5,7 @@ import numpy as np
 
 from nptyping import NDArray, DEFAULT_INT_BITS, Int, Bool, Datetime64
 from nptyping.types._timedelta64 import Timedelta64
+from nptyping.types._ndarray_meta import _NDArray
 
 
 class TestNDArray(TestCase):
@@ -205,7 +206,22 @@ class TestNDArray(TestCase):
 
     def test_subclass(self):
 
-        class MyArray(NDArray):
-            pass
+        class my_array(np.ndarray):
+            def __new__(cls, value):
+                return np.asarray(value).view(cls)
+
+        x = np.array([1.0, 2.0, 3.0])
+        x_cls = my_array(x)
+        self.assertIsInstance(x_cls, np.ndarray)
+        self.assertIsInstance(x_cls, my_array)
+        self.assertNotIsInstance(x, my_array)
+
+        class MyArray(_NDArray, my_array):
+            __instancecheck__ = None
+            __subclasscheck__ = None
 
         self.assertEqual(str(MyArray), "MyArray[(typing.Any, ...), typing.Any]")
+        self.assertIsInstance(x_cls, NDArray)
+        self.assertIsInstance(x_cls, MyArray)
+        self.assertIsInstance(x, NDArray)
+        self.assertNotIsInstance(x, MyArray)
