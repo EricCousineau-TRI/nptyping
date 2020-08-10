@@ -202,3 +202,10 @@ class TestNDArray(TestCase):
         self.assertNotIsInstance(np.array([[True, False], [True, 42]]), NDArray[(Any, ...), Bool])
         self.assertIsInstance(np.array([np.datetime64()]), NDArray[(Any, ...), Datetime64])
         self.assertIsInstance(np.array([np.timedelta64()]), NDArray[(Any, ...), Timedelta64])
+
+    def test_subclass(self):
+
+        class MyArray(NDArray):
+            pass
+
+        self.assertEqual(str(MyArray), "MyArray[(typing.Any, ...), typing.Any]")
